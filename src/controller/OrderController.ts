@@ -19,13 +19,21 @@ export class OrderController {
     async show(request: Request, response: Response) {
         const auth = new Auth(request);
 
-        let order = await Order.findOneBy({
-            id: parseInt(request.params.id),
-            user: {
-                id: auth.id()
-            }
-        });
-        return response.status(200).json(order);
+        try {
+            let order = await Order.findOneOrFail({
+                where: {
+                    id: parseInt(request.params.id),
+                    user: {
+                        id: auth.id()
+                    }
+                }
+            });
+            return response.status(200).json(order);
+        } catch (error: any) {
+            return response.status(404).json({
+                message: "Order not found."
+            });
+        }
     }
 
     async store(request: Request, response: Response) {
